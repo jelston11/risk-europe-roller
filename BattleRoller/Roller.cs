@@ -13,16 +13,18 @@
         private int defending_footmen;
         private bool on_castle;
         private bool has_reroll;
-
-        private int rank;
-
         private bool attackers_set;
         private bool defenders_set;
 
         // random.Next(1, 7); to simulate dice roll
         private Random random;
 
+        public int Rank { get; private set; }
         public int Rolls { get; private set; }
+        public int AttackingArmySize { get; private set; }
+        public int AttackingOriginalArmySize { get; private set; }
+        public int DefendingArmySize { get; private set; }
+        public int DefendingOriginalArmySize { get; private set; }
         public int[] AttackerLosses { get; private set; }
         public int[] DefenderLosses { get; private set; }
         public char Victor { get; private set; }
@@ -38,7 +40,7 @@
 
             Victor = 'n';
 
-            rank = -1;
+            Rank = -1;
 
             random = new();
         }
@@ -49,6 +51,8 @@
             attacking_archers = archers;
             attacking_cavalry = cavalry;
             attacking_footmen = footmen;
+            AttackingOriginalArmySize = siege + archers + cavalry + footmen;
+            AttackingArmySize = AttackingOriginalArmySize;
             attackers_set = true;
         }
 
@@ -58,6 +62,8 @@
             defending_archers = archers;
             defending_cavalry = cavalry;
             defending_footmen = footmen;
+            DefendingOriginalArmySize = siege + archers + cavalry + footmen;
+            DefendingArmySize = DefendingOriginalArmySize;
             on_castle = castle;
             has_reroll = castle;
             defenders_set = true;
@@ -65,8 +71,13 @@
 
         public bool Roll(bool reroll)
         {
+            if (defenders_set && attackers_set) 
+            {
+                return false;
+            }
+
             // Increment rank and get rank to use for this roll
-            if (reroll)
+            if (on_castle && reroll)
             {
                 if (!has_reroll)
                 {
@@ -76,66 +87,37 @@
             }
             else
             {
-                int new_rank = rank++;
-                if (new_rank == 0 && attacking_siege == 0 && defending_siege == 0)
+                Rank++;
+                if (Rank == 4)
                 {
-                    new_rank = 1;
+                    Rank = 0;
+                    if (on_castle)
+                    {
+                        has_reroll = true;
+                    }
                 }
-                if (new_rank == 1 && attacking_archers == 0 && defending_archers == 0)
+                if (Rank == 0 && attacking_siege == 0 && defending_siege == 0)
                 {
-                    new_rank = 2;
+                    Rank = 1;
                 }
-                if (new_rank == 2 && attacking_cavalry == 0 && defending_cavalry == 0)
+                if (Rank == 1 && attacking_archers == 0 && defending_archers == 0)
                 {
-                    new_rank = 3;
+                    Rank = 2;
                 }
-                if (new_rank == 3 && attacking_footmen == 0 && defending_footmen == 0)
+                if (Rank == 2 && attacking_cavalry == 0 && defending_cavalry == 0)
+                {
+                    Rank = 3;
+                }
+                if (Rank == 3 && attacking_footmen == 0 && defending_footmen == 0)
                 {
                     return false;
                 }
-                if (new_rank == 4)
-                {
-                    // reset reroll ability
-                }
             }
-            /*if (rank == 0 && on_castle)
-            {
-                // reset the reroll ability
-                has_reroll = true;
-            }
-
-            if (reroll)
-            {
-                // do not increment rank on rerolls
-                if (!has_reroll)
-                {
-                    return;
-                }
-
-                if (rank == 0)
-                {
-                    current_rank = 4;
-                }
-                else
-                {
-                    current_rank = rank - 1;
-                }
-                has_reroll = false;
-            }
-            else
-            {
-                rank++;
-                if (rank == 4)
-                {
-                    rank = 0;
-                }
-                current_rank = rank;
-            }*/
 
             int attack_hits = 0;
             int defense_hits = 0;
 
-            if (current_rank == 0)
+            if (Rank == 0)
             {
                 // Siege Attack (hit on 3+)
                 if (!reroll)
@@ -167,7 +149,7 @@
                     }
                 }
             }
-            else if (current_rank == 1)
+            else if (Rank == 1)
             {
                 // Archer Volley (hit on 5+)
                 if (!reroll)
@@ -189,7 +171,7 @@
                     }
                 }
             } 
-            else if (current_rank == 2)
+            else if (Rank == 2)
             {
                 // Cavalry Charge (hit on 3+)
                 if (!reroll)
@@ -213,7 +195,58 @@
             }
             else
             {
-                // General Attack
+                // Determine how many rolls attacker/defender gets
+                int attack_roll_one = -1;
+                int attack_roll_two = -1;
+                int attack_roll_three = -1;
+                int defense_roll_one = -1;
+                int defense_roll_two = -1;
+
+                if (attacking_footmen > 2)
+                {
+                    attack_roll_three = random.Next(1, 7);
+                }
+                if (attacking_footmen > 1)
+                {
+                    attack_roll_two = random.Next(1, 7);
+                }
+                if (attacking_footmen == 1)
+                {
+                    attack_roll_one = random.Next(1, 7);
+                }
+                
+                if (defending_footmen > 1)
+                {
+                    defense_roll_two = random.Next(1, 7);
+                }
+                if (defending_footmen == 1)
+                {
+                    defense_roll_one = random.Next(1, 7);
+                }
+
+                // Sort attack rolls in order
+                // Three should hold the smallest, one the biggest
+                int temp;
+                if (attack_roll_three > attack_roll_two)
+                {
+                    // Swap
+                    temp = attack_roll_three;
+                    attack_roll_three = attack_roll_two;
+                    attack_roll_two = temp;
+                }
+                if (attack_roll_two > attack_roll_one)
+                {
+                    // Swap
+                    temp = attack_roll_one;
+                    attack_roll_one = attack_roll_two;
+                    attack_roll_two = temp;
+                    if (attack_roll_three > attack_roll_two)
+                    {
+                        temp = attack_roll_two;
+                        attack_roll_two = attack_roll_three;
+                        attack_roll_three = temp;
+                    }
+                }
             }
         }
 
@@ -230,8 +263,26 @@
 
         private char EliminateUnits(int attacker_hits, int defender_hits)
         {
-            bool attacker_depleted = false;
-            bool defender_depleted = false;
+            // Check if battle is over
+            if (defender_hits >= DefendingArmySize && attacker_hits >= AttackingArmySize)
+            {
+                // i for inconclusive (draw)
+                return 'i';
+            }
+            else if (defender_hits >= DefendingArmySize)
+            {
+                // a for attacker win
+                return 'a';
+            }
+            else if (attacker_hits >= AttackingArmySize)
+            {
+                // d for defender win
+                return 'd';
+            }
+
+            // Determine new army sizes after hits
+            DefendingArmySize -= attacker_hits;
+            AttackingArmySize -= defender_hits;
 
             // Eliminating attackers
             if (attacking_footmen < defender_hits)
@@ -249,7 +300,6 @@
                         if (attacking_siege <= defender_hits)
                         {
                             attacking_siege = 0;
-                            attacker_depleted = true;
                         }
                         else
                         {
@@ -287,7 +337,6 @@
                         if (defending_siege <= attacker_hits)
                         {
                             defending_siege = 0;
-                            defender_depleted = true;
                         }
                         else
                         {
@@ -309,22 +358,8 @@
                 defending_footmen -= attacker_hits;
             }
 
-            if (defender_depleted && attacker_depleted)
-            {
-                return 'i';
-            } 
-            else if (defender_depleted)
-            {
-                return 'a';
-            }
-            else if (attacker_depleted)
-            {
-                return 'd';
-            }
-            else
-            {
-                return 'c';
-            }
+            // c for continue
+            return 'c';
         }
     }
 }
