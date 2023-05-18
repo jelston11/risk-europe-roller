@@ -12,6 +12,7 @@
         private int defending_cavalry;
         private int defending_footmen;
         private bool on_castle;
+        private bool has_reroll;
 
         private int rank;
 
@@ -37,6 +38,8 @@
 
             Victor = 'n';
 
+            rank = -1;
+
             random = new();
         }
 
@@ -56,12 +59,162 @@
             defending_cavalry = cavalry;
             defending_footmen = footmen;
             on_castle = castle;
+            has_reroll = castle;
             defenders_set = true;
         }
 
-        public void Roll()
+        public bool Roll(bool reroll)
         {
+            // Increment rank and get rank to use for this roll
+            if (reroll)
+            {
+                if (!has_reroll)
+                {
+                    return false;
+                }
+                has_reroll = false;
+            }
+            else
+            {
+                int new_rank = rank++;
+                if (new_rank == 0 && attacking_siege == 0 && defending_siege == 0)
+                {
+                    new_rank = 1;
+                }
+                if (new_rank == 1 && attacking_archers == 0 && defending_archers == 0)
+                {
+                    new_rank = 2;
+                }
+                if (new_rank == 2 && attacking_cavalry == 0 && defending_cavalry == 0)
+                {
+                    new_rank = 3;
+                }
+                if (new_rank == 3 && attacking_footmen == 0 && defending_footmen == 0)
+                {
+                    return false;
+                }
+                if (new_rank == 4)
+                {
+                    // reset reroll ability
+                }
+            }
+            /*if (rank == 0 && on_castle)
+            {
+                // reset the reroll ability
+                has_reroll = true;
+            }
 
+            if (reroll)
+            {
+                // do not increment rank on rerolls
+                if (!has_reroll)
+                {
+                    return;
+                }
+
+                if (rank == 0)
+                {
+                    current_rank = 4;
+                }
+                else
+                {
+                    current_rank = rank - 1;
+                }
+                has_reroll = false;
+            }
+            else
+            {
+                rank++;
+                if (rank == 4)
+                {
+                    rank = 0;
+                }
+                current_rank = rank;
+            }*/
+
+            int attack_hits = 0;
+            int defense_hits = 0;
+
+            if (current_rank == 0)
+            {
+                // Siege Attack (hit on 3+)
+                if (!reroll)
+                {
+                    for (int i = 0; i < attacking_siege; i++)
+                    {
+                        // 2 rolls for each siege weapon
+                        if (random.Next(1, 7) >= 3)
+                        {
+                            attack_hits++;
+                        }
+                        if (random.Next(1, 7) >= 3)
+                        {
+                            attack_hits++;
+                        }
+                    }
+                }
+
+                for (int i = 0; i < defending_siege; i++)
+                {
+                    // 2 rolls for each siege weapon
+                    if (random.Next(1, 7) >= 3)
+                    {
+                        defense_hits++;
+                    }
+                    if (random.Next(1, 7) >= 3)
+                    {
+                        defense_hits++;
+                    }
+                }
+            }
+            else if (current_rank == 1)
+            {
+                // Archer Volley (hit on 5+)
+                if (!reroll)
+                {
+                    for (int i = 0; i < attacking_archers; i++)
+                    {
+                        if (random.Next(1, 7) >= 5)
+                        {
+                            attack_hits++;
+                        }
+                    }
+                }
+
+                for (int i = 0; i < defending_archers; i++)
+                {
+                    if (random.Next(1, 7) >= 5)
+                    {
+                        defense_hits++;
+                    }
+                }
+            } 
+            else if (current_rank == 2)
+            {
+                // Cavalry Charge (hit on 3+)
+                if (!reroll)
+                {
+                    for (int i = 0; i < attacking_cavalry; i++)
+                    {
+                        if (random.Next(1, 7) >= 3)
+                        {
+                            attack_hits++;
+                        }
+                    }
+                }
+
+                for (int i = 0; i < defending_cavalry; i++)
+                {
+                    if (random.Next(1, 7) >= 3)
+                    {
+                        defense_hits++;
+                    }
+                }
+            }
+            else
+            {
+                // General Attack
+            }
         }
 
         public char Resolve()
