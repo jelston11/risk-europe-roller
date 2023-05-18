@@ -17,7 +17,7 @@
         private bool defenders_set;
 
         // random.Next(1, 7); to simulate dice roll
-        private Random random;
+        private readonly Random random;
 
         public int Rank { get; private set; }
         public int Rolls { get; private set; }
@@ -53,7 +53,10 @@
             attacking_footmen = footmen;
             AttackingOriginalArmySize = siege + archers + cavalry + footmen;
             AttackingArmySize = AttackingOriginalArmySize;
-            attackers_set = true;
+            if (AttackingOriginalArmySize > 0)
+            {
+                attackers_set = true;
+            }
         }
 
         public void SetDefendingArmy(int siege, int archers, int cavalry, int footmen, bool castle)
@@ -66,7 +69,10 @@
             DefendingArmySize = DefendingOriginalArmySize;
             on_castle = castle;
             has_reroll = castle;
-            defenders_set = true;
+            if (DefendingOriginalArmySize > 0)
+            {
+                defenders_set = true;
+            }
         }
 
         public bool Roll(bool reroll)
@@ -202,24 +208,24 @@
                 int defense_roll_one = -1;
                 int defense_roll_two = -1;
 
-                if (attacking_footmen > 2)
+                if (AttackingArmySize > 2)
                 {
                     attack_roll_three = random.Next(1, 7);
                 }
-                if (attacking_footmen > 1)
+                if (AttackingArmySize > 1)
                 {
                     attack_roll_two = random.Next(1, 7);
                 }
-                if (attacking_footmen == 1)
+                if (AttackingArmySize == 1)
                 {
                     attack_roll_one = random.Next(1, 7);
                 }
                 
-                if (defending_footmen > 1)
+                if (DefendingArmySize > 1)
                 {
                     defense_roll_two = random.Next(1, 7);
                 }
-                if (defending_footmen == 1)
+                if (DefendingArmySize == 1)
                 {
                     defense_roll_one = random.Next(1, 7);
                 }
@@ -242,11 +248,54 @@
                     attack_roll_two = temp;
                     if (attack_roll_three > attack_roll_two)
                     {
-                        temp = attack_roll_two;
+                        // Attack roll three not needed so don't put value into it here
+                        //temp = attack_roll_two;
                         attack_roll_two = attack_roll_three;
-                        attack_roll_three = temp;
+                        //attack_roll_three = temp;
                     }
                 }
+
+                // Sort defense rolls
+                if (defense_roll_two > defense_roll_one)
+                {
+                    // Swap
+                    temp = defense_roll_one;
+                    defense_roll_one = defense_roll_two;
+                    defense_roll_two = temp;
+                }
+
+                // Compare rolls
+                if (attack_roll_one > defense_roll_one)
+                {
+                    attack_hits++;
+                } 
+                else
+                {
+                    defense_hits++;
+                }
+
+                if (attack_roll_two != -1 && defense_roll_two != -1)
+                {
+                    if (attack_roll_two > defense_roll_two)
+                    {
+                        attack_hits++;
+                    }
+                    else
+                    {
+                        defense_hits++;
+                    }
+                }
+            }
+
+            char battle_result = EliminateUnits(attack_hits, defense_hits);
+            if (battle_result == 'c')
+            {
+                return false;
+            }
+            else
+            {
+                Victor = battle_result;
+                return true;
             }
         }
 
@@ -287,74 +336,90 @@
             // Eliminating attackers
             if (attacking_footmen < defender_hits)
             {
+                AttackerLosses[3] += attacking_footmen;
                 attacking_footmen = 0;
                 defender_hits -= attacking_footmen;
                 if (attacking_archers < defender_hits)
                 {
+                    AttackerLosses[1] += attacking_archers;
                     attacking_archers = 0;
                     defender_hits -= attacking_archers;
                     if (attacking_cavalry < defender_hits)
                     {
+                        AttackerLosses[2] += attacking_cavalry;
                         attacking_cavalry = 0;
                         defender_hits -= attacking_cavalry;
                         if (attacking_siege <= defender_hits)
                         {
+                            AttackerLosses[0] += attacking_siege;
                             attacking_siege = 0;
                         }
                         else
                         {
+                            AttackerLosses[0] += defender_hits;
                             attacking_siege -= defender_hits;
                         }
                     }
                     else
                     {
+                        AttackerLosses[2] += defender_hits;
                         attacking_cavalry -= defender_hits;
                     }
                 } 
                 else
                 {
+                    AttackerLosses[1] += defender_hits;
                     attacking_archers -= defender_hits;
                 }
             }
             else
             {
+                AttackerLosses[3] += defender_hits;
                 attacking_footmen -= defender_hits;
             }
 
             // Eliminating defenders
             if (defending_footmen < attacker_hits)
             {
+                DefenderLosses[3] += defending_footmen;
                 defending_footmen = 0;
                 attacker_hits -= defending_footmen;
                 if (defending_archers < attacker_hits)
                 {
+                    DefenderLosses[1] += defending_archers;
                     defending_archers = 0;
                     attacker_hits -= defending_archers;
                     if (defending_cavalry < attacker_hits)
                     {
+                        DefenderLosses[2] += defending_cavalry;
                         defending_cavalry = 0;
                         attacker_hits -= defending_cavalry;
                         if (defending_siege <= attacker_hits)
                         {
+                            DefenderLosses[0] += defending_siege;
                             defending_siege = 0;
                         }
                         else
                         {
+                            DefenderLosses[0] += attacker_hits;
                             defending_siege -= attacker_hits;
                         }
                     }
                     else
                     {
+                        DefenderLosses[2] += attacker_hits;
                         defending_cavalry -= attacker_hits;
                     }
                 }
                 else
                 {
+                    DefenderLosses[1] += attacker_hits;
                     defending_archers -= attacker_hits;
                 }
             }
             else
             {
+                DefenderLosses[3] += attacker_hits;
                 defending_footmen -= attacker_hits;
             }
 
