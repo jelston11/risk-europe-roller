@@ -2,8 +2,8 @@
 
 Roller roller = new(2);
 
-roller.SetAttackingArmy(1, 1, 1, 1);
-roller.SetDefendingArmy(1, 1, 1, 1, false);
+roller.SetAttackingArmy(1, 3, 3, 5);
+roller.SetDefendingArmy(1, 3, 3, 5, false);
 
 while (true)
 {

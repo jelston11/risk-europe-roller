@@ -342,7 +342,7 @@ namespace BattleRoller
                 {
                     attack_roll_two = random.Next(1, 7);
                 }
-                if (AttackingArmySize == 1)
+                if (AttackingArmySize > 0)
                 {
                     attack_roll_one = random.Next(1, 7);
                 }
@@ -351,7 +351,7 @@ namespace BattleRoller
                 {
                     defense_roll_two = random.Next(1, 7);
                 }
-                if (DefendingArmySize == 1)
+                if (DefendingArmySize > 0)
                 {
                     defense_roll_one = random.Next(1, 7);
                 }
