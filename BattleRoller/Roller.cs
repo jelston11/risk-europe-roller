@@ -66,7 +66,7 @@ namespace BattleRoller
 
             if (trace > 0)
             {
-                Debug.WriteLine($"\nATTACKERS\nSiege: {attacking_siege} | Archers: {attacking_archers}" +
+                Console.WriteLine($"\nATTACKERS\nSiege: {attacking_siege} | Archers: {attacking_archers}" +
                     $" | Cavalry: {attacking_cavalry} | Footmen: {attacking_footmen}\n");
             }
         }
@@ -88,18 +88,18 @@ namespace BattleRoller
 
             if (trace > 0)
             {
-                Debug.WriteLine($"\nDEFENDERS\nSiege: {defending_siege} | Archers: {defending_archers}" +
+                Console.WriteLine($"\nDEFENDERS\nSiege: {defending_siege} | Archers: {defending_archers}" +
                     $" | Cavalry: {defending_cavalry} | Footmen: {defending_footmen}\n");
             }
         }
 
         public bool Roll(bool reroll)
         {
-            if (defenders_set && attackers_set) 
+            if (!defenders_set || !attackers_set) 
             {
                 if (trace > 0)
                 {
-                    Debug.WriteLine("No roll. Armies not set.");
+                    Console.WriteLine("No roll. Armies not set.");
                 }
                 return false;
             }
@@ -111,14 +111,14 @@ namespace BattleRoller
                 {
                     if (trace > 0)
                     {
-                        Debug.WriteLine("No reroll available.");
+                        Console.WriteLine("No reroll available.");
                     }
                     return false;
                 }
                 has_reroll = false;
                 if (trace > 0)
                 {
-                    Debug.WriteLine("Reroll.");
+                    Console.WriteLine("Reroll.");
                 }
             }
             else
@@ -128,14 +128,14 @@ namespace BattleRoller
                 {
                     if (trace > 1)
                     {
-                        Debug.WriteLine("Reset rank.");
+                        Console.WriteLine("Reset rank.");
                     }
                     Rank = 0;
                     if (on_castle)
                     {
                         if (trace > 1)
                         {
-                            Debug.WriteLine("Reset reroll availability.");
+                            Console.WriteLine("Reset reroll availability.");
                         }
                         has_reroll = true;
                     }
@@ -144,7 +144,7 @@ namespace BattleRoller
                 {
                     if (trace > 1)
                     {
-                        Debug.WriteLine("No siege weapons. Skip rank 0.");
+                        Console.WriteLine("No siege weapons. Skip rank 0.");
                     }
                     Rank = 1;
                 }
@@ -152,7 +152,7 @@ namespace BattleRoller
                 {
                     if (trace > 1)
                     {
-                        Debug.WriteLine("No archers. Skip rank 1.");
+                        Console.WriteLine("No archers. Skip rank 1.");
                     }
                     Rank = 2;
                 }
@@ -160,15 +160,15 @@ namespace BattleRoller
                 {
                     if (trace > 1)
                     {
-                        Debug.WriteLine("No cavalry. Skip rank 2.");
+                        Console.WriteLine("No cavalry. Skip rank 2.");
                     }
                     Rank = 3;
                 }
-                if (Rank == 3 && attacking_footmen == 0 && defending_footmen == 0)
+                if (Rank == 3 && AttackingArmySize == 0 && DefendingArmySize == 0)
                 {
                     if (trace > 1)
                     {
-                        Debug.WriteLine("No footmen. No battle.");
+                        Console.WriteLine("No footmen. No battle.");
                     }
                     return false;
                 }
@@ -181,14 +181,14 @@ namespace BattleRoller
             {
                 if (trace > 0)
                 {
-                    Debug.WriteLine("\nSIEGE ATTACK\n");
+                    Console.WriteLine("\nSIEGE ATTACK\n");
                 }
                 // Siege Attack (hit on 3+)
                 if (!reroll)
                 {
                     if (trace > 0)
                     {
-                        Debug.WriteLine($"{attacking_siege} attacking siege weapons.");
+                        Console.WriteLine($"{attacking_siege} attacking siege weapons.");
                     }
                     for (int i = 0; i < attacking_siege; i++)
                     {
@@ -197,7 +197,7 @@ namespace BattleRoller
                         {
                             if (trace > 0)
                             {
-                                Debug.WriteLine($"Attacking siege {i + 1} hits.");
+                                Console.WriteLine($"Attacking siege {i + 1} hits.");
                             }
                             attack_hits++;
                         }
@@ -205,7 +205,7 @@ namespace BattleRoller
                         {
                             if (trace > 0)
                             {
-                                Debug.WriteLine($"Attacking siege {i + 1} hits.");
+                                Console.WriteLine($"Attacking siege {i + 1} hits.");
                             }
                             attack_hits++;
                         }
@@ -214,7 +214,7 @@ namespace BattleRoller
 
                 if (trace > 0)
                 {
-                    Debug.WriteLine($"{defending_siege} defending siege weapons.");
+                    Console.WriteLine($"{defending_siege} defending siege weapons.");
                 }
                 for (int i = 0; i < defending_siege; i++)
                 {
@@ -223,7 +223,7 @@ namespace BattleRoller
                     {
                         if (trace > 0)
                         {
-                            Debug.WriteLine($"Defending siege {i + 1} hits.");
+                            Console.WriteLine($"Defending siege {i + 1} hits.");
                         }
                         defense_hits++;
                     }
@@ -231,7 +231,7 @@ namespace BattleRoller
                     {
                         if (trace > 0)
                         {
-                            Debug.WriteLine($"Defending siege {i + 1} hits.");
+                            Console.WriteLine($"Defending siege {i + 1} hits.");
                         }
                         defense_hits++;
                     }
@@ -241,14 +241,14 @@ namespace BattleRoller
             {
                 if (trace > 0)
                 {
-                    Debug.WriteLine("\nARCHER VOLLEY\n");
+                    Console.WriteLine("\nARCHER VOLLEY\n");
                 }
                 // Archer Volley (hit on 5+)
                 if (!reroll)
                 {
                     if (trace > 0)
                     {
-                        Debug.WriteLine($"{attacking_archers} attacking archers.");
+                        Console.WriteLine($"{attacking_archers} attacking archers.");
                     }
                     for (int i = 0; i < attacking_archers; i++)
                     {
@@ -256,7 +256,7 @@ namespace BattleRoller
                         {
                             if (trace > 0)
                             {
-                                Debug.WriteLine($"Attacking archer {i + 1} hits.");
+                                Console.WriteLine($"Attacking archer {i + 1} hits.");
                             }
                             attack_hits++;
                         }
@@ -265,7 +265,7 @@ namespace BattleRoller
 
                 if (trace > 0)
                 {
-                    Debug.WriteLine($"{defending_archers} defending archers.");
+                    Console.WriteLine($"{defending_archers} defending archers.");
                 }
                 for (int i = 0; i < defending_archers; i++)
                 {
@@ -273,7 +273,7 @@ namespace BattleRoller
                     {
                         if (trace > 0)
                         {
-                            Debug.WriteLine($"Defending archer {i + 1} hits.");
+                            Console.WriteLine($"Defending archer {i + 1} hits.");
                         }
                         defense_hits++;
                     }
@@ -283,14 +283,14 @@ namespace BattleRoller
             {
                 if (trace > 0)
                 {
-                    Debug.WriteLine("\nCAVALRY CHARGE\n");
+                    Console.WriteLine("\nCAVALRY CHARGE\n");
                 }
                 // Cavalry Charge (hit on 3+)
                 if (!reroll)
                 {
                     if (trace > 0)
                     {
-                        Debug.WriteLine($"{attacking_cavalry} attacking cavalry.");
+                        Console.WriteLine($"{attacking_cavalry} attacking cavalry.");
                     }
                     for (int i = 0; i < attacking_cavalry; i++)
                     {
@@ -298,7 +298,7 @@ namespace BattleRoller
                         {
                             if (trace > 0)
                             {
-                                Debug.WriteLine($"Attacking cavalry {i + 1} hits.");
+                                Console.WriteLine($"Attacking cavalry {i + 1} hits.");
                             }
                             attack_hits++;
                         }
@@ -307,7 +307,7 @@ namespace BattleRoller
 
                 if (trace > 0)
                 {
-                    Debug.WriteLine($"{defending_cavalry} defending cavalry.");
+                    Console.WriteLine($"{defending_cavalry} defending cavalry.");
                 }
                 for (int i = 0; i < defending_cavalry; i++)
                 {
@@ -315,7 +315,7 @@ namespace BattleRoller
                     {
                         if (trace > 0)
                         {
-                            Debug.WriteLine($"Defending cavalry {i + 1} hits.");
+                            Console.WriteLine($"Defending cavalry {i + 1} hits.");
                         }
                         defense_hits++;
                     }
@@ -325,7 +325,7 @@ namespace BattleRoller
             {
                 if (trace > 0)
                 {
-                    Debug.WriteLine("\nGENERAL ATTACK\n");
+                    Console.WriteLine("\nGENERAL ATTACK\n");
                 }
                 // Determine how many rolls attacker/defender gets
                 int attack_roll_one = -1;
@@ -395,7 +395,7 @@ namespace BattleRoller
                 {
                     if (trace > 0)
                     {
-                        Debug.WriteLine($"Attacker hits with a {attack_roll_one} vs a {defense_roll_one}");
+                        Console.WriteLine($"Attacker hits with a {attack_roll_one} vs a {defense_roll_one}");
                     }
                     attack_hits++;
                 } 
@@ -403,7 +403,7 @@ namespace BattleRoller
                 {
                     if (trace > 0)
                     {
-                        Debug.WriteLine($"Defender hits with a {defense_roll_one} vs a {attack_roll_one}");
+                        Console.WriteLine($"Defender hits with a {defense_roll_one} vs a {attack_roll_one}");
                     }
                     defense_hits++;
                 }
@@ -414,7 +414,7 @@ namespace BattleRoller
                     {
                         if (trace > 0)
                         {
-                            Debug.WriteLine($"Attacker hits with a {attack_roll_two} vs a {defense_roll_two}");
+                            Console.WriteLine($"Attacker hits with a {attack_roll_two} vs a {defense_roll_two}");
                         }
                         attack_hits++;
                     }
@@ -422,7 +422,7 @@ namespace BattleRoller
                     {
                         if (trace > 0)
                         {
-                            Debug.WriteLine($"Defender hits with a {defense_roll_two} vs a {attack_roll_two}");
+                            Console.WriteLine($"Defender hits with a {defense_roll_two} vs a {attack_roll_two}");
                         }
                         defense_hits++;
                     }
@@ -431,7 +431,7 @@ namespace BattleRoller
                 {
                     if (trace > 1)
                     {
-                        Debug.WriteLine("Both players do not have 2 dice.");
+                        Console.WriteLine("Both players do not have 2 dice.");
                     }
                 }
             }
@@ -441,8 +441,13 @@ namespace BattleRoller
             {
                 if (trace > 0)
                 {
-                    Debug.WriteLine("\nBattle Continues. Roll again.\n");
+                    Console.WriteLine("\nBattle Continues. Roll again.\n");
+                    Console.WriteLine($"\nDEFENDERS\nSiege: {defending_siege} | Archers: {defending_archers}" +
+                    $" | Cavalry: {defending_cavalry} | Footmen: {defending_footmen}\n");
+                    Console.WriteLine($"\nATTACKERS\nSiege: {attacking_siege} | Archers: {attacking_archers}" +
+                    $" | Cavalry: {attacking_cavalry} | Footmen: {attacking_footmen}\n");
                 }
+
                 return false;
             }
             else
@@ -450,7 +455,7 @@ namespace BattleRoller
                 Victor = battle_result;
                 if (trace > 0)
                 {
-                    Debug.WriteLine($"\nBattle ends. Result: {Victor}.\n");
+                    Console.WriteLine($"\nBattle ends. Result: {Victor}.\n");
                 }
                 return true;
             }
@@ -470,44 +475,44 @@ namespace BattleRoller
         private char EliminateUnits(int attacker_hits, int defender_hits)
         {
             // Check if battle is over
-            if (defender_hits >= DefendingArmySize && attacker_hits >= AttackingArmySize)
+            if (defender_hits >= AttackingArmySize && attacker_hits >= DefendingArmySize)
             {
                 // i for inconclusive (draw)
                 if (trace > 0)
                 {
-                    Debug.WriteLine("\nBattle is over. Result inconclusive.\n");
+                    Console.WriteLine("\nBattle is over. Result inconclusive.\n");
                 }
                 return 'i';
             }
-            else if (defender_hits >= DefendingArmySize)
-            {
-                // a for attacker win
-                if (trace > 0)
-                {
-                    Debug.WriteLine("\nBattle is over. Attacker wins.\n");
-                }
-                return 'a';
-            }
-            else if (attacker_hits >= AttackingArmySize)
+            else if (defender_hits >= AttackingArmySize)
             {
                 // d for defender win
                 if (trace > 0)
                 {
-                    Debug.WriteLine("\nBattle is over. Defender wins.\n");
+                    Console.WriteLine("\nBattle is over. Defender wins.\n");
                 }
                 return 'd';
+            }
+            else if (attacker_hits >= DefendingArmySize)
+            {
+                // a for attacker win
+                if (trace > 0)
+                {
+                    Console.WriteLine("\nBattle is over. Attacker wins.\n");
+                }
+                return 'a';
             }
 
             // Determine new army sizes after hits
             DefendingArmySize -= attacker_hits;
             if (trace > 0)
             {
-                Debug.WriteLine($"Defenders lose {attacker_hits} units.");
+                Console.WriteLine($"Defenders lose {attacker_hits} units.");
             }
             AttackingArmySize -= defender_hits;
             if (trace > 0)
             {
-                Debug.WriteLine($"Attackers lose {defender_hits} units.");
+                Console.WriteLine($"Attackers lose {defender_hits} units.");
             }
 
             // Eliminating attackers
@@ -516,34 +521,34 @@ namespace BattleRoller
                 AttackerLosses[3] += attacking_footmen;
                 if (trace > 1)
                 {
-                    Debug.WriteLine($"Attackers lose {attacking_footmen} footmen.");
+                    Console.WriteLine($"Attackers lose {attacking_footmen} footmen.");
                 }
-                attacking_footmen = 0;
                 defender_hits -= attacking_footmen;
+                attacking_footmen = 0;
                 if (attacking_archers < defender_hits)
                 {
                     AttackerLosses[1] += attacking_archers;
                     if (trace > 1)
                     {
-                        Debug.WriteLine($"Attackers lose {attacking_archers} archers.");
+                        Console.WriteLine($"Attackers lose {attacking_archers} archers.");
                     }
-                    attacking_archers = 0;
                     defender_hits -= attacking_archers;
+                    attacking_archers = 0;
                     if (attacking_cavalry < defender_hits)
                     {
                         AttackerLosses[2] += attacking_cavalry;
                         if (trace > 1)
                         {
-                            Debug.WriteLine($"Attackers lose {attacking_cavalry} cavalry.");
+                            Console.WriteLine($"Attackers lose {attacking_cavalry} cavalry.");
                         }
-                        attacking_cavalry = 0;
                         defender_hits -= attacking_cavalry;
+                        attacking_cavalry = 0;
                         if (attacking_siege <= defender_hits)
                         {
                             AttackerLosses[0] += attacking_siege;
                             if (trace > 1)
                             {
-                                Debug.WriteLine($"Attackers lose {attacking_siege} siege weapons.");
+                                Console.WriteLine($"Attackers lose {attacking_siege} siege weapons.");
                             }
                             attacking_siege = 0;
                         }
@@ -552,7 +557,7 @@ namespace BattleRoller
                             AttackerLosses[0] += defender_hits;
                             if (trace > 1)
                             {
-                                Debug.WriteLine($"Attackers lose {defender_hits} siege weapons.");
+                                Console.WriteLine($"Attackers lose {defender_hits} siege weapons.");
                             }
                             attacking_siege -= defender_hits;
                         }
@@ -562,7 +567,7 @@ namespace BattleRoller
                         AttackerLosses[2] += defender_hits;
                         if (trace > 1)
                         {
-                            Debug.WriteLine($"Attackers lose {defender_hits} cavalry.");
+                            Console.WriteLine($"Attackers lose {defender_hits} cavalry.");
                         }
                         attacking_cavalry -= defender_hits;
                     }
@@ -572,7 +577,7 @@ namespace BattleRoller
                     AttackerLosses[1] += defender_hits;
                     if (trace > 1)
                     {
-                        Debug.WriteLine($"Attackers lose {defender_hits} archers.");
+                        Console.WriteLine($"Attackers lose {defender_hits} archers.");
                     }
                     attacking_archers -= defender_hits;
                 }
@@ -582,7 +587,7 @@ namespace BattleRoller
                 AttackerLosses[3] += defender_hits;
                 if (trace > 1)
                 {
-                    Debug.WriteLine($"Attackers lose {defender_hits} footmen.");
+                    Console.WriteLine($"Attackers lose {defender_hits} footmen.");
                 }
                 attacking_footmen -= defender_hits;
             }
@@ -593,34 +598,34 @@ namespace BattleRoller
                 DefenderLosses[3] += defending_footmen;
                 if (trace > 1)
                 {
-                    Debug.WriteLine($"Defenders lose {defending_footmen} footmen.");
+                    Console.WriteLine($"Defenders lose {defending_footmen} footmen.");
                 }
-                defending_footmen = 0;
                 attacker_hits -= defending_footmen;
+                defending_footmen = 0;
                 if (defending_archers < attacker_hits)
                 {
                     DefenderLosses[1] += defending_archers;
                     if (trace > 1)
                     {
-                        Debug.WriteLine($"Defenders lose {defending_archers} archers.");
+                        Console.WriteLine($"Defenders lose {defending_archers} archers.");
                     }
-                    defending_archers = 0;
                     attacker_hits -= defending_archers;
+                    defending_archers = 0;
                     if (defending_cavalry < attacker_hits)
                     {
                         DefenderLosses[2] += defending_cavalry;
                         if (trace > 1)
                         {
-                            Debug.WriteLine($"Defenders lose {defending_cavalry} cavalry.");
+                            Console.WriteLine($"Defenders lose {defending_cavalry} cavalry.");
                         }
-                        defending_cavalry = 0;
                         attacker_hits -= defending_cavalry;
+                        defending_cavalry = 0;
                         if (defending_siege <= attacker_hits)
                         {
                             DefenderLosses[0] += defending_siege;
                             if (trace > 1)
                             {
-                                Debug.WriteLine($"Defenders lose {defending_siege} siege weapons.");
+                                Console.WriteLine($"Defenders lose {defending_siege} siege weapons.");
                             }
                             defending_siege = 0;
                         }
@@ -629,7 +634,7 @@ namespace BattleRoller
                             DefenderLosses[0] += attacker_hits;
                             if (trace > 1)
                             {
-                                Debug.WriteLine($"Defenders lose {attacker_hits} siege weapons.");
+                                Console.WriteLine($"Defenders lose {attacker_hits} siege weapons.");
                             }
                             defending_siege -= attacker_hits;
                         }
@@ -639,7 +644,7 @@ namespace BattleRoller
                         DefenderLosses[2] += attacker_hits;
                         if (trace > 1)
                         {
-                            Debug.WriteLine($"Defenders lose {attacker_hits} cavalry.");
+                            Console.WriteLine($"Defenders lose {attacker_hits} cavalry.");
                         }
                         defending_cavalry -= attacker_hits;
                     }
@@ -649,7 +654,7 @@ namespace BattleRoller
                     DefenderLosses[1] += attacker_hits;
                     if (trace > 1)
                     {
-                        Debug.WriteLine($"Defenders lose {attacker_hits} archers.");
+                        Console.WriteLine($"Defenders lose {attacker_hits} archers.");
                     }
                     defending_archers -= attacker_hits;
                 }
@@ -659,7 +664,7 @@ namespace BattleRoller
                 DefenderLosses[3] += attacker_hits;
                 if (trace > 1)
                 {
-                    Debug.WriteLine($"Defenders lose {attacker_hits} footmen.");
+                    Console.WriteLine($"Defenders lose {attacker_hits} footmen.");
                 }
                 defending_footmen -= attacker_hits;
             }
